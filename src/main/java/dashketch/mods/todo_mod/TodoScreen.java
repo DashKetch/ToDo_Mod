@@ -8,11 +8,11 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TodoScreen extends Screen {
     private EditBox inputField;
-    private static final int ITEM_HEIGHT = 20;
 
     public TodoScreen() {
         super(Component.literal("ToDo List"));
@@ -21,6 +21,9 @@ public class TodoScreen extends Screen {
     public static void open() {
         Minecraft.getInstance().setScreen(new TodoScreen());
     }
+
+    private final List<TaskHitbox> hitboxes = new ArrayList<>();
+    private record TaskHitbox(int index, int yTop, int yBottom) {}
 
     @Override
     protected void init() {
@@ -47,57 +50,72 @@ public class TodoScreen extends Screen {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
         int centerX = this.width / 2;
-        guiGraphics.drawCenteredString(this.font, this.title, centerX, 10, 0xFFFFFF);
-
-        List<ToDoList.Task> tasks = ToDoList.getTasks();
         int currentY = 65;
         int startX = centerX - 100;
+        // Adjust this to match your desired GUI width
 
-        // Define how wide a task is allowed to be before wrapping (e.g., 200 pixels)
-        int maxTextWidth = 200;
+        hitboxes.clear(); // Clear old hitboxes every frame
+        List<ToDoList.Task> tasks = ToDoList.getTasks();
 
-        for (ToDoList.Task task : tasks) {
-            int color = task.isPriority ? 0xFFFF00 : 0xFFFFFF;
-            String prefix = task.isPriority ? "§l[!] " : "[ ] ";
+        for (int i = 0; i < tasks.size(); i++) {
+            ToDoList.Task task = tasks.get(i);
 
-            // 1. Wrap the description text
-            // This returns a list of lines that fit within maxTextWidth
-            List<net.minecraft.util.FormattedCharSequence> lines =
-                    this.font.split(Component.literal(prefix + task.description), maxTextWidth);
+            // 1. Determine color and prefix based on priority
+            int color = task.isPriority ? 0xFFFF00 : 0xFFFFFF; // Yellow for priority, White for normal
+            String prefix = task.isPriority ? "[!] " : "[ ] ";
 
-            // 2. Draw each wrapped line
-            for (int i = 0; i < lines.size(); i++) {
-                guiGraphics.drawString(this.font, lines.get(i), startX, currentY, color);
+            // 2. Create a Component and FORCED style
+            // We use Style.EMPTY.withColor(color) to ensure the splitter sees this as "Rich Text"
+            net.minecraft.network.chat.MutableComponent taskComponent = Component.literal(prefix + task.description)
+                    .withStyle(net.minecraft.network.chat.Style.EMPTY.withColor(color));
 
-                // Only draw the hint text on the VERY LAST line of the wrapped task
-                if (i == lines.size() - 1) {
-                    int lastLineWidth = this.font.width(lines.get(i));
-                    String hintText = " §8(Click: Priority | Shift-Click: Delete)";
-                    guiGraphics.drawString(this.font, hintText, startX + lastLineWidth, currentY, 0xFFFFFF);
-                }
-
-                currentY += 10; // Move down for the next line of the SAME task
+            if (task.isPriority) {
+                taskComponent.withStyle(s -> s.withBold(true));
             }
 
-            currentY += 5; // Extra gap between different tasks
+            // 3. Perform the split with a strict pixel width (adjust 180 to fit your screen)
+            int wrapWidth = 180;
+            var wrappedLines = this.font.split(taskComponent, wrapWidth);
+
+            int taskYStart = currentY;
+
+            // 4. Render each wrapped line
+            for (int lineIdx = 0; lineIdx < wrappedLines.size(); lineIdx++) {
+                var line = wrappedLines.get(lineIdx);
+
+                // Use drawString with the CharSequence from the split
+                guiGraphics.drawString(this.font, line, startX, currentY, color);
+
+                // 5. Append hint text to the last line of this specific task
+                if (lineIdx == wrappedLines.size() - 1) {
+                    int lineWidth = this.font.width(line);
+                    guiGraphics.drawString(this.font, " §8(Click: Prioritize | Shift-Click: Delet)", startX + lineWidth, currentY, 0x808080);
+                }
+
+                currentY += 10; // Move down for the next line
+            }
+
+            // 6. Record hitboxes for the click logic (crucial for multi-line tasks)
+            hitboxes.add(new TaskHitbox(i, taskYStart, currentY));
+            currentY += 6; // Padding between different tasks
         }
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        int yStart = 65;
-        int listSize = ToDoList.getTasks().size();
-
-        // Check if the user clicked within the vertical bounds of the list
-        if (mouseY >= yStart && mouseY < yStart + (listSize * ITEM_HEIGHT)) {
-            int clickedIndex = (int)((mouseY - yStart) / ITEM_HEIGHT);
-
-            if (hasShiftDown()) {
-                ToDoList.removeTask(clickedIndex);
-            } else {
-                ToDoList.togglePriority(clickedIndex);
+        int centerX = this.width / 2;
+        // Check if the click is within the horizontal bounds of our list
+        if (mouseX >= (centerX - 100) && mouseX <= (centerX + 150)) {
+            for (TaskHitbox hitbox : hitboxes) {
+                if (mouseY >= hitbox.yTop && mouseY < hitbox.yBottom) {
+                    if (hasShiftDown()) {
+                        ToDoList.removeTask(hitbox.index);
+                    } else {
+                        ToDoList.togglePriority(hitbox.index);
+                    }
+                    return true;
+                }
             }
-            return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
