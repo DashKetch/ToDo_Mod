@@ -1,0 +1,29 @@
+modLoader="javafml" # Mandatory
+loaderVersion="[4,)" # Mandatory
+license="All Rights Reserved" # Mandatory
+issueTrackerURL="http://my.issue.tracker/" # Optional
+
+[[mods]] # The 'mods' array is MANDATORY
+modId="todo_mod" # Must match your @Mod("todo_mod") in Java
+version="1.0.0"
+displayName="ToDo List Mod"
+displayURL="http://example.com/"
+logoFile="logo.png" # Optional
+authors="Me"
+description='''
+    A simple todo list mod.
+    '''
+
+[[dependencies.todo_mod]] # Optional dependencies block
+modId="neoforge"
+type="required"
+versionRange="[21.1,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.todo_mod]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1,)"
+ordering="NONE"
+side="BOTH"
