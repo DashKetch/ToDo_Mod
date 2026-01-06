@@ -89,7 +89,7 @@ public class TodoScreen extends Screen {
                 // 5. Append hint text to the last line of this specific task
                 if (lineIdx == wrappedLines.size() - 1) {
                     int lineWidth = this.font.width(line);
-                    guiGraphics.drawString(this.font, " §8(Click: Prioritize | Shift-Click: Delet)", startX + lineWidth, currentY, 0x808080);
+                    guiGraphics.drawString(this.font, " §8(Click: Prioritize | Shift-Click: Delete)", startX + lineWidth, currentY, 0x808080);
                 }
 
                 currentY += 10; // Move down for the next line
