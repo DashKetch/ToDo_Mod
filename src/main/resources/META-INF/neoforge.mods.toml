@@ -7,9 +7,9 @@ issueTrackerURL="http://my.issue.tracker/" # Optional
 modId="todo_mod" # Must match your @Mod("todo_mod") in Java
 version="1.0.0"
 displayName="ToDo List Mod"
-displayURL="http://example.com/"
+displayURL="https://discord.gg/gEjJwKk8gs"
 logoFile="logo.png" # Optional
-authors="Me"
+authors="Dash_Ketch"
 description='''
     A simple todo list mod.
     '''
