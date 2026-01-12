@@ -7,9 +7,12 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static dashketch.mods.todo_mod.Todo_mod.log;
 
 public class TodoScreen extends Screen {
     private EditBox inputField;
@@ -39,6 +42,11 @@ public class TodoScreen extends Screen {
                 ToDoList.addTask(inputField.getValue());
             }
         }).bounds(centerX + 55, 30, 45, 20).build());
+
+        // "Mode" Button
+        this.addRenderableWidget(Button.builder(Component.literal("Mode"), button -> {
+            HudOverlay.switchMode();
+                }).bounds(centerX - 150, 30, 45, 20).build());
 
         this.addRenderableWidget(Button.builder(Component.literal("Close"), b -> this.onClose())
                 .bounds(centerX - 100, this.height - 30, 200, 20).build());

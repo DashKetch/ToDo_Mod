@@ -8,6 +8,7 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 import static dashketch.mods.todo_mod.Todo_mod.black;
+import static dashketch.mods.todo_mod.Todo_mod.log;
 
 @EventBusSubscriber(modid = "todo_mod", bus = EventBusSubscriber.Bus.MOD)
 public class HudOverlay {
@@ -64,5 +65,13 @@ public class HudOverlay {
                     }
                 }
         );
+    }
+
+    public static void switchMode() {
+        log.info("Mode Switch");
+        if (ModConfigs.LIST_MODE.get()) {
+            ModConfigs.LIST_MODE.set(false);
+        } else ModConfigs.LIST_MODE.set(true);
+
     }
 }
