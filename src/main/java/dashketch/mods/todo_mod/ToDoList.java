@@ -7,24 +7,23 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dashketch.mods.todo_mod.HudOverlay.taskAmount;
-
 public class ToDoList {
     private static final File SAVE_FILE = new File(Minecraft.getInstance().gameDirectory, "todolist.json");
     private static final Gson GSON = new Gson();
 
-    // The list of tasks
     private static List<Task> tasks = new ArrayList<>();
-    // HUD visibility toggle
     public static boolean hudVisible = true;
 
     public static class Task {
         public String description;
         public boolean isPriority;
+        // NEW: Stores the registry name of the item (e.g., "minecraft:diamond_sword")
+        public String iconID = "minecraft:paper";
 
         public Task(String description, boolean isPriority) {
             this.description = description;
             this.isPriority = isPriority;
+            this.iconID = "minecraft:paper";
         }
     }
 
@@ -35,14 +34,14 @@ public class ToDoList {
     public static void addTask(String desc) {
         tasks.add(new Task(desc, false));
         save();
-        taskAmount = taskAmount + 1;
+        HudOverlay.taskAmount = HudOverlay.taskAmount + 1;
     }
 
     public static void removeTask(int index) {
         if (index >= 0 && index < tasks.size()) {
             tasks.remove(index);
             save();
-            taskAmount = taskAmount - 1;
+            HudOverlay.taskAmount = HudOverlay.taskAmount - 1;
         }
     }
 
@@ -50,6 +49,14 @@ public class ToDoList {
         if (index >= 0 && index < tasks.size()) {
             Task t = tasks.get(index);
             t.isPriority = !t.isPriority;
+            save();
+        }
+    }
+
+    // NEW: Updates the icon for a specific task
+    public static void setIcon(int index, String itemID) {
+        if (index >= 0 && index < tasks.size()) {
+            tasks.get(index).iconID = itemID;
             save();
         }
     }

@@ -10,7 +10,7 @@ public class ModConfigs {
     static {
         BUILDER.push("ToDo List Settings");
 
-        LIST_MODE = BUILDER.define("list_mode", false);
+        LIST_MODE = BUILDER.define("icon_list_mode", false);
         BUILDER.pop();
     }
 
