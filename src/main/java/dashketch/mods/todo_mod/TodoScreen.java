@@ -70,14 +70,13 @@ public class TodoScreen extends Screen {
             String prefix = task.isPriority ? "[!] " : "[ ] ";
 
             // --- 2. RENDER ICON IN GUI ---
-            // If the task has a custom icon, render it to the LEFT of the text
-            if (task.iconID != null && !task.iconID.equals("minecraft:paper")) {
+            // If the task has a custom icon, else render the default in the config
+            if (task.iconID != null) {
                 try {
                     net.minecraft.world.item.ItemStack stack = new net.minecraft.world.item.ItemStack(
                             net.minecraft.core.registries.BuiltInRegistries.ITEM.get(net.minecraft.resources.ResourceLocation.parse(task.iconID))
                     );
                     // Render at startX - 20 (Left of the list)
-                    // We subtract 4 from Y to center the 16x16 icon relative to the 10px text line
                     guiGraphics.renderFakeItem(stack, startX - 20, currentY - 4);
                 } catch (Exception e) {
                     // Ignore invalid items

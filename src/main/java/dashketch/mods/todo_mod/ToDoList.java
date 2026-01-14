@@ -23,7 +23,7 @@ public class ToDoList {
         public Task(String description, boolean isPriority) {
             this.description = description;
             this.isPriority = isPriority;
-            this.iconID = "minecraft:paper";
+            this.iconID = ModConfigs.ICON_DEFAULT.get();
         }
     }
 
