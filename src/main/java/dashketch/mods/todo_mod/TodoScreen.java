@@ -56,7 +56,7 @@ public class TodoScreen extends Screen {
         int centerX = this.width / 2;
         int startX = centerX - 100;
 
-        // 1. RENDER GLOBAL CONTROLS TIP (Only once at the top)
+        // 1. Render Global Tip
         String globalTip = "§8Click: Prio | Shift: Del | Ctrl: Set Icon";
         guiGraphics.drawString(this.font, globalTip, startX, 55, 0x808080);
 
@@ -69,13 +69,26 @@ public class TodoScreen extends Screen {
             int color = task.isPriority ? 0xFFFF00 : 0xFFFFFF;
             String prefix = task.isPriority ? "[!] " : "[ ] ";
 
-            // 2. CLEAN TEXT COMPONENT (No extra indicators)
+            // --- 2. RENDER ICON IN GUI ---
+            // If the task has a custom icon, render it to the LEFT of the text
+            if (task.iconID != null && !task.iconID.equals("minecraft:paper")) {
+                try {
+                    net.minecraft.world.item.ItemStack stack = new net.minecraft.world.item.ItemStack(
+                            net.minecraft.core.registries.BuiltInRegistries.ITEM.get(net.minecraft.resources.ResourceLocation.parse(task.iconID))
+                    );
+                    // Render at startX - 20 (Left of the list)
+                    // We subtract 4 from Y to center the 16x16 icon relative to the 10px text line
+                    guiGraphics.renderFakeItem(stack, startX - 20, currentY - 4);
+                } catch (Exception e) {
+                    // Ignore invalid items
+                }
+            }
+
+            // 3. Render Text
             net.minecraft.network.chat.MutableComponent taskComponent = Component.literal(prefix + task.description)
                     .withStyle(net.minecraft.network.chat.Style.EMPTY.withColor(color));
 
-            if (task.isPriority) {
-                taskComponent.withStyle(s -> s.withBold(true));
-            }
+            if (task.isPriority) taskComponent.withStyle(s -> s.withBold(true));
 
             int wrapWidth = 200;
             var wrappedLines = this.font.split(taskComponent, wrapWidth);
@@ -86,9 +99,8 @@ public class TodoScreen extends Screen {
                 currentY += 10;
             }
 
-            // Record hitbox for clicking logic
             hitboxes.add(new TaskHitbox(i, taskYStart, currentY));
-            currentY += 6; // Space between tasks
+            currentY += 6;
         }
     }
 

@@ -17,8 +17,8 @@ public class ToDoList {
     public static class Task {
         public String description;
         public boolean isPriority;
-        // NEW: Stores the registry name of the item (e.g., "minecraft:diamond_sword")
-        public String iconID = "minecraft:paper";
+        //Stores the registry name of the item (e.g., "minecraft:diamond_sword")
+        public String iconID;
 
         public Task(String description, boolean isPriority) {
             this.description = description;
